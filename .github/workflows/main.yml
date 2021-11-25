@@ -31,5 +31,5 @@ jobs:
           python -mvenv venv
           . venv/bin/activate
           python3 setup.py install
-          ls -l build
+          ls -l build/lib
           
