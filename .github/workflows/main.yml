@@ -28,6 +28,8 @@ jobs:
       # Runs a single command using the runners shell
       - name: Run a one-line script
         run: |
+          python -mvenv venv
+          . venv/bin/activate
           python3 setup.py install
           ls -l
           
