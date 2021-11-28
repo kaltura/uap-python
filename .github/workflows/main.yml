@@ -3,9 +3,9 @@ name: CI
 on:
   workflow_dispatch:
     inputs:
-      tag_name:
+      version:
         required: true
-        description: Tag name
+        description: Version
 
 jobs:
   build:
@@ -18,13 +18,19 @@ jobs:
           . venv/bin/activate
           python setup.py install
           
-          cat << EOF > build/lib/setup.py
+      - name: Dist
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ github.event.inputs.version }}
+        run: |
+          mv build/lib dist
+          cat << EOF > dist/setup.py
           # -*- coding: utf-8 -*-
           from setuptools import setup
 
           setup(
               name='ua-parser',
-              version='0.15.0',
+              version='$VERSION',
               packages=['ua_parser'],
               url='https://github.com/kaltura/uap-python',
               license='Apache2',
@@ -32,14 +38,20 @@ jobs:
           )
           EOF
           
-          cd build/lib
-          zip -r $GITHUB_WORKSPACE/ua_parser.zip .
+          pushd dist
+          cat << EOF > ua_parser/__init__.py
+          VERSION_STR = '$TAG'
+          VERSION = tuple(int(n) for n in VERSION_STR.split('.'))
+          EOF
+          
+          zip -r ../ua_parser.zip .
+          cat ua_parser/__init__.py
           cat setup.py
-
-      - name: Dist
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ${{ github.event.inputs.tag_name }}
-        run: |
+          
+          popd
+        
+          TAG="v$VERSION"
           gh release create "$TAG" --title "$TAG"
           gh release upload "$TAG" ua_parser.zip
+          
+          
