@@ -1,8 +1,6 @@
 name: CI
 
 on:
-#   push:
-#     branches: [ main ]
   workflow_dispatch:
     inputs:
       tag_name:
@@ -19,27 +17,29 @@ jobs:
           python3 -mvenv venv
           . venv/bin/activate
           python setup.py install
+          
+          cat << EOF > build/lib/setup.py
+          # -*- coding: utf-8 -*-
+          from setuptools import setup
 
-      - uses: actions/checkout@v2
-        with:
-          ref: dist
-          path: dist
+          setup(
+              name='ua-parser',
+              version='0.15.0',
+              packages=['ua_parser'],
+              url='https://github.com/kaltura/uap-python',
+              license='Apache2',
+              zip_safe=True
+          )
+          EOF
+          
+          cd build/lib
+          zip -r $WORKSPACE/ua_parser.zip .
+          cat setup.py
 
       - name: Dist
-        run: |
-          cd dist
-          cp ../build/lib/ua_parser/*.py .
-
-      - name: Release
-        uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          repository: dist
-          branch: dist
-          commit_message: Update
-      
-      - name: Tag
-        env: 
+        env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.event.inputs.tag_name }}
         run: |
-          cd dist
-          gh release create "${{ github.event.inputs.tag_name }}" --target dist
+          gh release create "$TAG" --title "$TAG"
+          gh release upload "$TAG" ua_parser.zip
