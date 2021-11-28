@@ -33,7 +33,7 @@ jobs:
           EOF
           
           cd build/lib
-          zip -r $WORKSPACE/ua_parser.zip .
+          zip -r $GITHUB_WORKSPACE/ua_parser.zip .
           cat setup.py
 
       - name: Dist
