@@ -22,10 +22,10 @@ jobs:
           ls -l build/lib/ua_parser
         
       - name: Release
-        if: github.event.input.tag_name
+        if: github.event.inputs.tag_name
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ${{ github.event.input.tag_name }}
+          TAG: ${{ github.event.inputs.tag_name }}
         run: |
           zip ua_parser.zip build/lib/ua_parser/*.py
           gh release create "$TAG" --title "$TAG"
