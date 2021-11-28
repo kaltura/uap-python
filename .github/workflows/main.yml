@@ -31,3 +31,16 @@ jobs:
           zip -j ua_parser.zip build/lib/ua_parser/*.py
           gh release create "$TAG" --title "$TAG"
           gh release upload "$TAG" ua_parser.zip
+          
+      - name: Dist
+        if: github.event.event_name == 'push'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh repo clone "$GITHUB_REPOSITORY" dist -- -b dist
+          cd dist
+          cp ../build/lib/ua_parser/*.py .
+          git add .
+          git commit -m 'Update'
+          git push origin dist
+          
