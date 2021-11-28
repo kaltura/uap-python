@@ -16,6 +16,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Build
         run: |
+          pip install wheel
           python -mvenv venv
           . venv/bin/activate
           python3 setup.py install
@@ -27,7 +28,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ github.event.inputs.tag_name }}
         run: |
-          zip ua_parser.zip build/lib/ua_parser/*.py
+          zip -j ua_parser.zip build/lib/ua_parser/*.py
           gh release create "$TAG" --title "$TAG"
           gh release upload "$TAG" ua_parser.zip
-        
