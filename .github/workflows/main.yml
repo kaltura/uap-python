@@ -21,26 +21,20 @@ jobs:
           . venv/bin/activate
           python3 setup.py install
           ls -l build/lib/ua_parser
-        
-      - name: Release
-        if: github.event.inputs.tag_name
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ${{ github.event.inputs.tag_name }}
-        run: |
-          zip -j ua_parser.zip build/lib/ua_parser/*.py
-          gh release create "$TAG" --title "$TAG"
-          gh release upload "$TAG" ua_parser.zip
-          
+
+      - uses: actions/checkout@v2
+        with:
+          ref: dist
+          path: dist
+
       - name: Dist
-        if: github.event_name == 'push'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh repo clone "$GITHUB_REPOSITORY" dist -- -b dist
           cd dist
           cp ../build/lib/ua_parser/*.py .
-          git add .
-          git commit -m 'Update'
-          git push origin dist
-          
+
+      - name: Commit and push
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          repository: dist
+          branch: dist
+          commit_message: Update
