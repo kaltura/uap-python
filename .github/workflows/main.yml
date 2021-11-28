@@ -1,11 +1,13 @@
 name: CI
 
 on:
+  push:
+    branches: ['*']
   workflow_dispatch:
     inputs:
       version:
         required: true
-        description: Version
+        description: Version such as 0.15.0
 
 jobs:
   build:
@@ -16,9 +18,11 @@ jobs:
         run: |
           python3 -mvenv venv
           . venv/bin/activate
+          pip install wheel
           python setup.py install
           
-      - name: Dist
+      - name: Release
+        if: github.event_name == 'workflow_dispatch'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VERSION: ${{ github.event.inputs.version }}
