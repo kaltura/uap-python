@@ -40,7 +40,7 @@ jobs:
           
           pushd dist
           cat << EOF > ua_parser/__init__.py
-          VERSION_STR = '$TAG'
+          VERSION_STR = '$VERSION'
           VERSION = tuple(int(n) for n in VERSION_STR.split('.'))
           EOF
           
