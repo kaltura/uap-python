@@ -33,7 +33,7 @@ jobs:
           gh release upload "$TAG" ua_parser.zip
           
       - name: Dist
-        if: github.event.event_name == 'push'
+        if: github.event_name == 'push'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
