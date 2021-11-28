@@ -38,6 +38,8 @@ jobs:
           commit_message: Update
       
       - name: Tag
+        env: 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cd dist
           gh release create "${{ github.event.inputs.tag_name }}" --target dist
