@@ -1,32 +1,19 @@
-# This is a basic workflow to help you get started with Actions
-
 name: CI
 
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the main branch
   push:
     branches: [ main ]
-    tags: '*'
-  pull_request:
-    branches: [ main ]
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+    inputs:
+      tag_name:
+        required: true
+        description: Tag name
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
   build:
-    # The type of runner that the job will run on
     runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
-
-      # Runs a single command using the runners shell
       - name: Build
         run: |
           python -mvenv venv
@@ -35,10 +22,12 @@ jobs:
           ls -l build/lib/ua_parser
         
       - name: Release
-        if: github.ref_type == 'tag'
+        if: github.event.input.tag_name
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.event.input.tag_name }}
         run: |
           zip ua_parser.zip build/lib/ua_parser/*.py
-          gh release upload "${{ github.ref_name }}" ua_parser.zip
+          gh release create "$TAG" --title "$TAG"
+          gh release upload "$TAG" ua_parser.zip
         
