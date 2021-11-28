@@ -36,4 +36,8 @@ jobs:
           repository: dist
           branch: dist
           commit_message: Update
-          tagging_message: ${{ github.event.inputs.tag_name }}
+      
+      - name: Tag
+        run: |
+          cd dist
+          gh release create "${{ github.event.inputs.tag_name }}" --target dist
